@@ -1,0 +1,16 @@
+Here is your contact card:
+---------------------------
+Name: John Doe
+Phone Number: 555-555-1234
+Age: 30
+Favorite Color: Blue
+---------------------------
+
+
+Here are all your contacts:
+John Doe
+Jane Doe
+John Smith
+Jane Smith
+
+
