@@ -13,4 +13,4 @@ def calculate_values(shape, radius):
             "Volume": (4/3) * math.pi * radius ** 3
         }
     }
-    return calculations.get(shape, {})
+    return calculations.get(shape)
