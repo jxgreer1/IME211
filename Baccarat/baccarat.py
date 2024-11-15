@@ -1,77 +1,97 @@
-# This is a python file to show how the game works
-import random
+import random  # Importing random module to draw random cards
 
+# List of cards and their corresponding values
 CARDS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-VALUE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]
-OUTCOME = ['Player wins', 'Banker wins', 'Tie']
+VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]  # Card values in Baccarat (10, J, Q, K are worth 0)
+OUTCOME = ['Player wins', 'Banker wins', 'Tie']  # Possible game outcomes
 
-# Inclusive range function
-irange = lambda start, end: range(start, end + 1)
 
+# Function to compute the score of a hand
 def compute_score(hand):
-    """Compute the score of a hand"""
+
     total_value = 0
-    for card in hand:
-        total_value += VALUE[CARDS.index(card)]
-    return total_value % 10
+    for card in hand:  # Add up the values of the cards
+        total_value += VALUES[CARDS.index(card)]  # Use the index of the card in CARDS to find its value in VALUES
+    return total_value % 10  # The score is the last digit of the total value
 
-def play():
-    """Returns the winner"""
-    player_hand = [
-        random.choice(CARDS),
-        random.choice(CARDS)
-    ]
-    banker_hand = [
-        random.choice(CARDS),
-        random.choice(CARDS)
-    ]
 
+# Function to simulate the Baccarat game
+def play_game(): #main play def
+
+    # Game introduction
+    print("Welcome to Baccarat!")
+    print("Do you want to play as the Player or the Banker?")
+
+    # Ask the user to choose their role
+    role = input("Type 'player' to be the Player or 'banker' to be the Banker: ").strip().lower()
+    while role not in ['player', 'banker']:  # Validate the input
+        role = input("Invalid choice. Please type 'player' or 'banker': ").strip().lower()
+
+    user_is_player = role == 'player'  # Boolean to track if the user is the Player
+    print(f"\nYou are the {'Player' if user_is_player else 'Banker'}. Let's begin!")
+
+    # Generate initial hands for the Player and the Banker
+    player_hand = [random.choice(CARDS), random.choice(CARDS)]  # Draw two random cards for the Player
+    banker_hand = [random.choice(CARDS), random.choice(CARDS)]  # Draw two random cards for the Banker
+
+    # Compute the initial scores
     player_score = compute_score(player_hand)
     banker_score = compute_score(banker_hand)
 
-    print('Player has cards:\t' + player_hand[0] + '\t' + player_hand[1])
-    print('Player has score of\t' + str(player_score))
-    print('Banker has cards:\t' + banker_hand[0] + '\t' + banker_hand[1])
-    print('Banker has score of\t' + str(banker_score))
+    # Display the initial hands and scores
+    print("\nPlayer's cards:", player_hand)
+    print("Player's score:", player_score)
+    print("\nBanker's cards:", banker_hand)
+    print("Banker's score:", banker_score)
 
-    # Natural
+    # Check for natural win (score of 8 or 9)
     if player_score in [8, 9] or banker_score in [8, 9]:
-        if player_score != banker_score:
-            return OUTCOME[banker_score > player_score]
-        else:
-            return OUTCOME[2]
+        print("\nNatural win detected!")  # If either Player or Banker has a natural win
+        if player_score == banker_score:  # If scores are tied
+            return "It's a Tie!"
+        return OUTCOME[banker_score > player_score]  # Determine winner based on higher score
 
-    # Player has low score
-    if player_score in irange(0, 5):
-        # Player get's a third card
+    # Allow the user to decide whether to draw a third card
+    if user_is_player:  # If the user is the Player
+        if player_score in range(0, 6):  # Player can draw a card only if their score is 0-5
+            draw_third_card = input("\nDo you want to draw a third card? (yes/no): ").strip().lower()
+            if draw_third_card == "yes":  # If the user decides to draw a card
+                player_hand.append(random.choice(CARDS))  # Add a new card to the Player's hand
+                print("You drew a third card:", player_hand[-1])  # Show the card
+    else:  # If the user is the Banker
+        if banker_score in range(0, 6):  # Banker can draw a card only if their score is 0-5
+            draw_third_card = input("\nDo you want to draw a third card? (yes/no): ").strip().lower()
+            if draw_third_card == "yes":  # If the user decides to draw a card
+                banker_hand.append(random.choice(CARDS))  # Add a new card to the Banker's hand
+                print("You drew a third card:", banker_hand[-1])  # Show the card
+
+    # Range to decide if other player draws a card
+    if not user_is_player and player_score in range(0, 6):
         player_hand.append(random.choice(CARDS))
-        player_third = compute_score([player_hand[2]])
-        print('Player gets a third card:\t' + player_hand[2])
+        print("\nPlayer drew a third card:", player_hand[-1])
+    elif user_is_player and banker_score in range(0, 6): #if banker
+        banker_hand.append(random.choice(CARDS))
+        print("\nBanker drew a third card:", banker_hand[-1])
 
-        # Determine if banker needs a third card
-        if (banker_score == 6 and player_third in [6, 7]) or \
-           (banker_score == 5 and player_third in irange(4, 7)) or \
-           (banker_score == 4 and player_third in irange(2, 7)) or \
-           (banker_score == 3 and player_third != 8) or \
-           (banker_score in [0, 1, 2]):
-            banker_hand.append(random.choice(CARDS))
-            print('Banker gets a third card:\t' + banker_hand[2])
-
-    elif player_score in [6, 7]:
-        if banker_score in irange(0, 5):
-            banker_hand.append(random.choice(CARDS))
-            print('Banker gets a third card:\t' + banker_hand[2])
-
-    # Compute the scores again and return the outcome
+    # add total score
     player_score = compute_score(player_hand)
     banker_score = compute_score(banker_hand)
 
-    print('Player has final score of\t' + str(player_score))
-    print('Banker has final score of\t' + str(banker_score))
+    # Display the final hands and scores
+    print("\nFinal Player's hand:", player_hand)
+    print("Final Player's score:", player_score)
+    print("\nFinal Banker's hand:", banker_hand)
+    print("Final Banker's score:", banker_score)
 
-    if player_score != banker_score:
-        return OUTCOME[banker_score > player_score]
+    # Determine and return the final outcome
+    if player_score > banker_score:
+        return "Player wins!"
+    elif player_score < banker_score:
+        return "Banker wins!"
     else:
-        return OUTCOME[2]
+        return "It's a Tie!"
 
-print(play())
+
+# Run the game
+result = play_game()  # Call the function to play the game
+print("\nGame Over! " + result)  # Print the result of the game
